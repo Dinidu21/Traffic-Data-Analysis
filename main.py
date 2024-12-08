@@ -1,5 +1,14 @@
 def validate_input(msg, minDay, maxDay):
-    pass
+    while True:
+        try:
+            value = int(input(msg))
+            if value < minDay or value > maxDay:
+                print(f"Out of range - values must be in the range {minDay} to {maxDay}.")
+            else:
+                return value
+        except ValueError:
+            print("Integer required.")
+
 
 def validate_date_input():
     day = validate_input("Please enter the day of the survey in the format dd: ", 1, 31)
@@ -17,7 +26,11 @@ def display_outcomes(outcomes):
 
 
 def validate_continue_input():
-    pass
+    while True:
+        user_input = input("\nDo you want to process another file? (y/n): ").strip().lower()
+        if user_input in ['y', 'n']:
+            return user_input == 'y'
+        print("Invalid input. Enter 'y' for yes or 'n' for no.")
 
 
 def main():
