@@ -1,12 +1,23 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import os
 
 # Initialize the Flask application
 app = Flask(__name__)
 
-# Directory for uploaded files
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+# Ensure the upload folder exists
+def ensure_upload_folder_exists():
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+        print(f"Created new folder: {UPLOAD_FOLDER}")
+    else:
+        print(f"Using existing folder: {UPLOAD_FOLDER}")
+
+ensure_upload_folder_exists()
+
 
 # Route to render the form
 @app.route('/')
@@ -20,18 +31,12 @@ def submit():
         file = request.files['file']
 
         if file:
-            # Save the file to the 'uploads' folder
+            ensure_upload_folder_exists()
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
             file.save(file_path)
-
-            # Render the success message
-            return render_template('success.html', message="File uploaded successfully!")
-
+            return redirect(url_for('home'))
         else:
-            return "No file selected"
+            return "No file selected", 400
 
 if __name__ == '__main__':
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
-
     app.run(debug=True)
