@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Data Input</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+</head>
+<body>
+<h1 class="form-title">Traffic Data Analysis</h1>
+<form action="/submit" method="POST" enctype="multipart/form-data">
+    <label for="file">CSV File:</label>
+    <input type="file" id="file" name="file" accept=".csv" required><br><br>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>
