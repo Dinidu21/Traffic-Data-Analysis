@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Traffic Analysis Results</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/result.css') }}">
 </head>
 <body>
 <div class="results-container">
@@ -88,6 +88,11 @@
         <span class="result-key">Total Rainy Hours</span>
         <span class="result-value">{{ outcomes['Rain Hours'] }}</span>
     </div>
+
+    <div class="button-container">
+        <button class="again-button" onclick="window.location.href = '/';">Again</button>
+    </div>
+
 </div>
 </body>
 </html>
