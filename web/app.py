@@ -1,13 +1,12 @@
-import re
-from flask import Flask, render_template, request
 import os
+import re
+from flask import Flask, render_template, request, send_from_directory
 import csv
 
 # Initialize the Flask application
 app = Flask(__name__)
 
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+UPLOAD_FOLDER = '/tmp/uploads'
 
 # Ensure the upload folder exists
 def ensure_upload_folder_exists():
@@ -18,6 +17,15 @@ def ensure_upload_folder_exists():
         print(f"Using existing folder: {UPLOAD_FOLDER}")
 
 ensure_upload_folder_exists()
+
+# In the submit route, add a function to check the CSV structure
+def validate_csv(file):
+    try:
+        with open(file, mode='r') as f:
+            reader = csv.DictReader(f)
+            return list(reader)[:5]  # return the first 5 rows for preview
+    except Exception as e:
+        return None
 
 # Function to process the CSV file
 def process_csv_data(file_name, day, month, year):
@@ -153,6 +161,9 @@ def process_csv_data(file_name, day, month, year):
 
     return outcomes
 
+@app.route('/static/<path:path>')
+def serve_static(path):
+    return send_from_directory('static', path)
 
 # Route to render the form
 @app.route('/')
@@ -168,7 +179,7 @@ def submit():
 
         if file:
             ensure_upload_folder_exists()
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(file_path)
 
             # Extract day, month, and year from the filename (e.g., traffic_data15062024.csv)
@@ -181,6 +192,7 @@ def submit():
                 year = int(date_match.group(3))  # Extract year
             else:
                 print("Date not found in filename, using default values.")
+                day, month, year = 1, 1, 2024
 
             # Process CSV and get outcomes
             outcomes = process_csv_data(file_path, day, month, year)
@@ -192,12 +204,13 @@ def submit():
         else:
             return "No file selected", 400
 
-
 # Route to render results
 @app.route('/results')
 def results():
     return render_template('results.html')
 
+# For serverless deployment
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def create_app():
+    return app
