@@ -1,4 +1,5 @@
 import tkinter as tk
+import csv
 
 
 # Task D: Histogram Display using tkinter
@@ -105,3 +106,99 @@ class HistogramApp:
         self.add_legend()
         # Start the Tkinter main loop to display the histogram
         self.root.mainloop()
+
+# Task E: Code Loops to Handle Multiple CSV Files
+class MultiCSVProcessor:
+    def __init__(self):
+        """
+        Initializes the application for processing multiple CSV files.
+
+        This class is designed to handle multiple CSV files. It keeps track of the
+        current data being processed and provides methods to load a new CSV file,
+        clear the previous data, and handle user interaction when processing a new
+        dataset.
+        """
+        self.current_data = None
+        """
+        Keeps track of the current data being processed. This is set to None initially
+        and is updated when a new CSV file is loaded.
+        """
+
+    def load_csv_file(self, file_path):
+        """
+        Loads a CSV file and processes its data.
+
+        Args:
+            file_path (str): The path to the CSV file to be loaded.
+
+        This method reads the CSV file and stores the data in the current_data
+        attribute. The data is stored as a list of dictionaries, where each
+        dictionary represents a row in the CSV file. The keys of the dictionary
+        are the column names in the CSV file.
+        """
+        with open(file_path, mode='r') as file:
+            reader = csv.DictReader(file)
+            self.current_data = list(reader)
+
+    def clear_previous_data(self):
+        """
+        Clears the current data stored in memory.
+
+        This method resets the current_data attribute to None, ensuring that
+        any data from a previous dataset is removed before processing a new dataset.
+        """
+        # Reset the current_data attribute to clear previous dataset
+        self.current_data = None
+
+    def handle_user_interaction(self):
+        """
+        Handles user input for processing multiple files.
+
+        This method repeatedly prompts the user to input a CSV file path until
+        a valid file path is entered. The method then loads the CSV file using
+        the load_csv_file method and breaks out of the loop. If the file is not
+        found, the method prints an error message and continues to prompt the
+        user for input.
+        """
+        while True:
+            file_path = input("Please enter the CSV file path: ").strip()
+            if not file_path:
+                print("Input cannot be empty.")
+                continue
+
+            try:
+                self.load_csv_file(file_path)
+                break
+            except FileNotFoundError:
+                print("File not found. Please try again.")
+
+    def process_files(self):
+        """
+        Main loop for handling multiple CSV files until the user decides to quit.
+
+        This method clears previous data, handles user input for a new file, and
+        processes the file using the HistogramApp class. The user is then asked
+        if they want to process another file. If the user enters 'N', the loop
+        breaks and the program exits.
+        """
+        while True:
+            # Clear previous data
+            self.clear_previous_data()
+
+            # Handle user input for a new file
+            self.handle_user_interaction()
+
+            # Get the date for the histogram
+            date = input("Please enter the date for the histogram (DD/MM/YYYY): ").strip()
+            if not date:
+                print("Input cannot be empty.")
+                continue
+
+            # Create a new HistogramApp instance and run it
+            app = HistogramApp(self.current_data, date)
+            app.run()
+
+            # Ask the user if they want to process another file
+            continue_input = input("Do you want to process another file? (Y/N): ").strip().upper()
+            if continue_input == 'N':
+                break
