@@ -605,24 +605,70 @@ def save_results_to_file(outcomes_list):
 
 
 
+# Main Function
 def main():
     print("*********************************************\n"
           "\tTraffic Data Analysis Program\n"
           "*********************************************\n")
-    outcomes_list = []
+
+    outcomes_list = []  # Store results for multiple files
+    processor = MultiCSVProcessor()  # Object to handle multiple CSV files
+
     while True:
-        day, month, year = validate_date_input()
+        # Get the survey date from the user with error handling
+        try:
+            day, month, year = validate_date_input()
+        except ValueError as e:
+            print(f"Invalid date input: {e}. Please try again.")
+            continue
+
+        # Generate the expected CSV file name
         file_name = f"traffic_data{day:02}{month:02}{year}.csv"
-        outcomes = process_csv_data(file_name, day, month, year)
 
-        if outcomes:
-            outcomes_list.append(outcomes)
-            display_outcomes(outcomes)
+        try:
+            # Load CSV file using MultiCSVProcessor
+            processor.load_csv_file(file_name)
 
-        if not validate_continue_input():
-            break
+            # Task B: Process CSV Data
+            try:
+                outcomes = process_csv_data(file_name, day, month, year)
+                if outcomes:
+                    # Add outcomes to the list and display them
+                    outcomes_list.append(outcomes)
+                    display_outcomes(outcomes)
+            except Exception as e:
+                print(f"Error processing CSV data: {e}. Skipping this file.")
+                continue
 
-    save_results_to_file(outcomes_list)
+            # Task D: Display Histogram using HistogramApp
+            try:
+                app = HistogramApp(processor.current_data, f"{day:02d}/{month:02d}/{year}")
+                app.run()
+            except Exception as e:
+                print(f"Error displaying histogram: {e}. Skipping this file.")
+                continue
 
+        except FileNotFoundError:
+            print(f"Error: File '{file_name}' not found.\n")
+            continue
+
+        # Check if the user wants to process another file
+        try:
+            if not validate_continue_input():
+                break
+        except ValueError:
+            print("Invalid input. Please enter 'Y' for yes or 'N' for no.")
+            continue
+
+    # Save results with error handling
+    try:
+        save_results_to_file(outcomes_list)
+    except IOError as e:
+        print(f"Error saving results to file: {e}. Please check your file permissions and try again.")
+
+
+
+# Entry point of the program
 if __name__ == "__main__":
+    # Call the main function to start the program
     main()
