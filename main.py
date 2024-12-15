@@ -32,6 +32,39 @@ def validate_input(prompt, min_val, max_val):
                 print(f"Out of range - values must be in the range {min_val} and {max_val}.")
             else:
                 return value
+
+        except ValueError:
+            # Handle non-integer inputs
+            print("Integer required.")
+    """
+    Validate user input within a specific range with comprehensive error handling.
+
+    Args:
+        prompt (str): The input prompt for the user
+        min_val (int): Minimum allowed value
+        max_val (int): Maximum allowed value
+
+    Returns:
+        int: A validated integer within the specified range
+    """
+    while True:
+        try:
+            # Strip whitespace and handle empty input
+            user_input = input(prompt).strip()
+
+            # Check for empty input
+            if not user_input:
+                print("Input cannot be empty.")
+                continue
+
+            # Attempt to convert input to integer
+            value = int(user_input)
+
+            # Check if value is within the specified range
+            if value < min_val or value > max_val:
+                print(f"Out of range - values must be in the range {min_val} and {max_val}.")
+            else:
+                return value
         except ValueError:
             # Handle non-integer inputs
             print("Integer required.")
@@ -39,6 +72,44 @@ def validate_input(prompt, min_val, max_val):
 
 
 def validate_date_input():
+    """
+    Prompts the user for a date in DD MM YYYY format, validates the input for:
+    - Correct data type
+    - Correct range for day, month, and year
+    - Handles leap year considerations
+
+    Returns:
+        tuple: Validated day, month, and year
+    """
+    while True:
+        # Validate day input
+        day = validate_input("Please enter the day of the survey in the format DD: ", 1, 31)
+
+        # Validate month input
+        month = validate_input("Please enter the month of the survey in the format MM: ", 1, 12)
+
+        # Validate year input
+        year = validate_input("Please enter the year of the survey in the format YYYY: ", 2000, 2024)
+
+        # Define the maximum days in each month
+        days_in_month = {
+            1: 31, 2: 28, 3: 31, 4: 30,
+            5: 31, 6: 30, 7: 31, 8: 31,
+            9: 30, 10: 31, 11: 30, 12: 31
+        }
+
+        # Check for leap year and adjust February's days
+        if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
+            print("Its a leap year")
+            days_in_month[2] = 29
+
+        # Validate the day against the month
+        if day > days_in_month[month]:
+            print(f"Invalid day for month {month}. Maximum days are {days_in_month[month]}.")
+            continue  # Restart the input process
+
+        # If all validations pass, return the date
+        return day, month, year
     """
     Prompts the user for a date in DD MM YYYY format, validates the input for:
     - Correct data type
@@ -85,11 +156,35 @@ def validate_date_input():
 
 
 def validate_continue_input():
+    """
+    Prompts the user to decide whether to load another dataset:
+    - Validates "Y" or "N" input
+    - Case-insensitive
+    - Handles whitespace
+
+    Returns:
+        bool: True if user wants to continue, False otherwise
+    """
     while True:
-        user_input = input("\nDo you want to process another file? (y/n): ").strip().lower()
-        if user_input in ['y', 'n']:
-            return user_input == 'y'
-        print("Invalid input. Enter 'y' for yes or 'n' for no.")
+        try:
+            # Get input, strip whitespace, and convert to lowercase
+            user_input = input("\nProcess another file? (y/n): ").strip().lower()
+
+            # Check for empty input
+            if not user_input:
+                print("Input cannot be empty.")
+                continue
+
+            # Validate input
+            if user_input in ['y', 'n']:
+                return user_input == 'y'
+
+            # Handle invalid inputs
+            print("Invalid input. Enter 'y' for yes or 'n' for no.")
+
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
 
 
 
@@ -423,22 +518,37 @@ def process_csv_data(file_path, day, month, year):
 
 
 def display_outcomes(outcomes):
+    """
+    Print the outcomes in the specified format.
+
+    Args:
+    outcomes (dict): Dictionary of traffic metrics
+    """
     if not outcomes:
+        # Check if outcomes are empty
         print("No data to display.")
         return
 
-    print(f"data file selected is {outcomes['Data File']}\n")
+    # Print each outcome in a formatted manner
+    print("\n***************************************************************")
+    print(f"data file selected is {outcomes['Data File']}")
+    print("***************************************************************\n")
     print(f"The total number of vehicles recorded for this date is {outcomes['Total Vehicles']}")
     print(f"The total number of trucks recorded for this date is {outcomes['Total Trucks']}")
     print(f"The total number of electric vehicles for this date is {outcomes['Total Electric Vehicles']}")
     print(f"The total number of two-wheeled vehicles for this date is {outcomes['Two-Wheeled Vehicles']}")
     print(f"The total number of Busses leaving Elm Avenue/Rabbit Road heading North is {outcomes['Buses North']}")
-    print(f"The total number of Vehicles through both junctions not turning left or right is {outcomes['Straight Through']}")
-    print(f"The percentage of total vehicles recorded that are trucks for this date is {outcomes['Truck Percentage']}%.")
+    print(
+        f"The total number of Vehicles through both junctions not turning left or right is {outcomes['Straight Through']}")
+    print(
+        f"The percentage of total vehicles recorded that are trucks for this date is {outcomes['Truck Percentage']}%.")
     print(f"The average number of Bikes per hour for this date is {outcomes['Average Bicycles Per Hour']}")
-    print(f"The total number of Vehicles recorded as over the speed limit for this date is {outcomes['Over Speed Limit']}")
-    print(f"The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is {outcomes['Elm Ave Rabbit Road']}")
-    print(f"The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes['Hanley Highway Westway']}")
+    print(
+        f"The total number of Vehicles recorded as over the speed limit for this date is {outcomes['Over Speed Limit']}")
+    print(
+        f"The total number of vehicles recorded through Elm Avenue/Rabbit Road junction is {outcomes['Elm Ave Rabbit Road']}")
+    print(
+        f"The total number of vehicles recorded through Hanley Highway/Westway junction is {outcomes['Hanley Highway Westway']}")
     print(f"{outcomes['Scooter Percentage']}% of vehicles recorded through Elm Avenue/Rabbit Road are scooters.")
     print(f"The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes['Highest Hourly Count']}")
     print(f"The most vehicles through Hanley Highway/Westway were recorded {outcomes['Most Vehicles Hour']}")
@@ -447,15 +557,21 @@ def display_outcomes(outcomes):
 
 
 def save_results_to_file(outcomes_list):
-    file_name = "results.txt"
+    """
+    Save the processed traffic outcomes to a text file.
+    Appends results if multiple datasets are processed in one session.
+    """
+    file_name = "results.txt"  # Define the output file name
+    print("File saved as results.txt")
     try:
+        # Attempt to open the file in append mode ('a') to add new results without overwriting existing data
         with open(file_name, "a") as file:
+            # Iterate through each outcome dictionary in the outcomes_list
             for outcomes in outcomes_list:
+                # Write each outcome to the file
                 file.write(f"Data file selected is {outcomes['Data File']}\n")
-                file.write(
-                    f"\nThe total number of vehicles recorded for this date is {outcomes['Total Vehicles']}\n")
-                file.write(
-                    f"The total number of trucks recorded for this date is {outcomes['Total Trucks']}\n")
+                file.write(f"\nThe total number of vehicles recorded for this date is {outcomes['Total Vehicles']}\n")
+                file.write(f"The total number of trucks recorded for this date is {outcomes['Total Trucks']}\n")
                 file.write(
                     f"The total number of electric vehicles for this date is {outcomes['Total Electric Vehicles']}\n")
                 file.write(
@@ -480,12 +596,13 @@ def save_results_to_file(outcomes_list):
                     f"The highest number of vehicles in an hour on Hanley Highway/Westway is {outcomes['Highest Hourly Count']}\n")
                 file.write(
                     f"The most vehicles through Hanley Highway/Westway were recorded between {outcomes['Most Vehicles Hour']}\n")
-                file.write(
-                    f"The number of hours of rain for this date is {outcomes['Rain Hours']}\n")
+                file.write(f"The number of hours of rain for this date is {outcomes['Rain Hours']}\n")
                 file.write("\n***************************************************************\n")
 
     except Exception as e:
+        # Handle errors during file writing
         print(f"Error saving results: {e}")
+
 
 
 def main():
