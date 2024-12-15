@@ -1,6 +1,8 @@
 import csv
 import os
 
+from gui import HistogramApp, MultiCSVProcessor
+
 
 def validate_input(prompt, min_val, max_val):
     """
